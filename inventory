@@ -1,0 +1,7 @@
+[vdi_g]
+aap-control1.s2linux.local
+clienterhel9.s2linux.local
+deva.s2linux.local
+
+[vdi_g:vars]
+ansible_password="12345678"

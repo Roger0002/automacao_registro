@@ -1,0 +1,28 @@
+---
+- name: Play registrador
+  hosts: vdi_g
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Refaz o registro das máquinas
+      community.general.redhat_subscription:
+        state: present
+        activationkey: "RHEL9-AK"
+        org_id: "S2_Linux"
+        force_register: true
+      register: firsttry_register_output
+      ignore_errors: true
+
+    # Essa task seria executada caso a máquina esteja registrada, mas tenha
+    # sido apagada do Satellite. Um cenário como esse resultaria em erro da
+    # task anterior, mesmo com o force_register ativado.
+    - name: Tenta um novo registro caso o módulo anterior resulte em erro
+      ansible.builtin.shell: >
+        subscription-manager register 
+        --org="S2_Linux" 
+        --activationkey="RHEL9-AK" --force
+      when:
+        - firsttry_register_output.failed == true
+        - firsttry_register_output.msg is search("This system is already registered")
+
+...
